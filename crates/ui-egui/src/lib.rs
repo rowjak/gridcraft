@@ -214,6 +214,9 @@ pub struct SheetApp {
     pub dialog: Option<dialogs::Dialog>,
     /// The File tab's Backstage view, when open (UI-only; replaces the ribbon, grid and tabs).
     pub backstage: Option<backstage::Backstage>,
+    /// Cloud-drive single-file editing (`?cloud=1` on the web): no File tab, and New, Open (picker),
+    /// Close and the Backstage are unavailable so the open workbook can't be replaced.
+    pub cloud_file_mode: bool,
     pub message: Option<(String, String)>,
     pub toast: Option<(String, f64)>,
     /// Dismissible info bar under the ribbon (open-time notices).

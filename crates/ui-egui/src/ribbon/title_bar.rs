@@ -110,6 +110,9 @@ pub fn title_bar(app: &mut SheetApp, ui: &mut Ui) {
                     ("Sort A to Z", "data.sortAscending"),
                     ("Calculate Now", "formulas.calculateNow"),
                 ] {
+                    if app.cloud_file_mode && matches!(id, "file.new" | "file.open" | "file.saveAs") {
+                        continue;
+                    }
                     if ui.button(label).clicked() {
                         app.run_or_alert(id, json!({}));
                     }

@@ -247,6 +247,9 @@ fn scroll_arrows(ui: &mut Ui, t: &Tokens, tab: &str, scroll: egui::scroll_area::
 /// The File tab opens the Backstage view (New, Open, Info, Save As, Print, Export, Options…), like
 /// Excel's; the ribbon's tab and collapsed state are left as they were for when it closes.
 fn file_menu(app: &mut SheetApp, ui: &mut Ui) {
+    if app.cloud_file_mode {
+        return;
+    }
     let t = Tokens::get(ui.ctx());
     let label = egui::RichText::new(app.ui.language.tr("File")).font(theme::ui_font(13.5)).color(t.accent);
     let file = ui.add(egui::Button::new(label).frame(false).min_size(vec2(46.0, 30.0)));

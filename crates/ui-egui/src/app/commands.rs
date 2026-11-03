@@ -17,6 +17,11 @@ impl SheetApp {
     }
 
     pub(super) fn run_command(&mut self, id: &str, params: Json) -> Result<Json, String> {
+        if self.cloud_file_mode
+            && (matches!(id, "file.new" | "file.close" | "file.saveAs") || (id == "file.open" && params.get("base64").is_none()))
+        {
+            return Err("This action is not available while editing a file from BDrive.".into());
+        }
         let switches_window = id.starts_with("window.")
             || matches!(id, "view.newWindow" | "view.hideWindow" | "view.unhideWindow")
             || (id == "view.switchWindows" && ["window", "doc"].iter().any(|k| params.get(*k).is_some_and(|d| !d.is_null())));
@@ -410,7 +415,7 @@ impl SheetApp {
     /// Opens the File tab's Backstage view on `page`, committing a cell still being edited first
     /// (File actions work on the whole workbook). A draft that can't be committed keeps the sheet.
     pub fn open_backstage(&mut self, page: backstage::Page) {
-        if !self.chrome.file_tab {
+        if self.cloud_file_mode || !self.chrome.file_tab {
             return;
         }
         if !self.commit_edit(0, 0, false, false) {

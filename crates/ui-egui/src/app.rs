@@ -37,6 +37,7 @@ impl SheetApp {
             text_box_editor: None,
             dialog: None,
             backstage: None,
+            cloud_file_mode: false,
             message: None,
             toast: None,
             notice: None,

@@ -60,6 +60,7 @@ pub fn start() {
                         bridge.connect(&mut services, inbox.clone(), cc.egui_ctx.clone());
                     }
                     let mut app = SheetApp::new(session, services);
+                    app.cloud_file_mode = q.contains("cloud");
                     app.ui.system_theme = true;
                     // `?chrome=none|notitlebar|nofiletab`: a host that embeds the sheet in its own window and owns the files
                     // can leave the title bar and/or the File tab undrawn (`Chrome`, #1877). An unknown value keeps
