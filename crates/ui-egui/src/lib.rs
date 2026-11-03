@@ -210,6 +210,9 @@ pub struct SheetApp {
     pub dialog: Option<dialogs::Dialog>,
     /// The File tab's Backstage view, when open (UI-only; replaces the ribbon, grid and tabs).
     pub backstage: Option<backstage::Backstage>,
+    /// Cloud-drive single-file editing (`?cloud=1` on the web): no File tab, and New, Open (picker),
+    /// Close and the Backstage are unavailable so the open workbook can't be replaced.
+    pub cloud_file_mode: bool,
     pub message: Option<(String, String)>,
     pub toast: Option<(String, f64)>,
     /// Dismissible info bar under the ribbon (open-time notices).
@@ -259,6 +262,7 @@ impl SheetApp {
             text_box_editor: None,
             dialog: None,
             backstage: None,
+            cloud_file_mode: false,
             message: None,
             toast: None,
             notice: None,
@@ -322,6 +326,11 @@ impl SheetApp {
 
     /// Runs an engine command (or a UI command) and handles UI requests it makes.
     pub fn run(&mut self, id: &str, params: Json) -> Result<Json, String> {
+        if self.cloud_file_mode
+            && (matches!(id, "file.new" | "file.close" | "file.saveAs") || (id == "file.open" && params.get("base64").is_none()))
+        {
+            return Err("This action is not available while editing a file from BDrive.".into());
+        }
         if matches!(id, "file.save" | "file.saveAs" | "file.saveBytes") {
             self.store_view_state();
         }
@@ -641,6 +650,9 @@ impl SheetApp {
     /// Opens the File tab's Backstage view on `page`, committing a cell still being edited first
     /// (File actions work on the whole workbook). A draft that can't be committed keeps the sheet.
     pub fn open_backstage(&mut self, page: backstage::Page) {
+        if self.cloud_file_mode {
+            return;
+        }
         if !self.commit_edit(0, 0, false, false) {
             return;
         }

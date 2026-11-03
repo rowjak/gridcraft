@@ -104,6 +104,9 @@ pub fn title_bar(app: &mut SheetApp, ui: &mut Ui) {
                     ("Sort A to Z", "data.sortAscending"),
                     ("Calculate Now", "formulas.calculateNow"),
                 ] {
+                    if app.cloud_file_mode && matches!(id, "file.new" | "file.open" | "file.saveAs") {
+                        continue;
+                    }
                     if ui.button(label).clicked() {
                         app.run_or_alert(id, json!({}));
                     }
@@ -254,6 +257,9 @@ pub fn show(app: &mut SheetApp, ui: &mut Ui) {
 /// The File tab opens the Backstage view (New, Open, Info, Save As, Print, Export, Options…), like
 /// Excel's; the ribbon's tab and collapsed state are left as they were for when it closes.
 fn file_menu(app: &mut SheetApp, ui: &mut Ui) {
+    if app.cloud_file_mode {
+        return;
+    }
     let t = Tokens::get(ui.ctx());
     let label = egui::RichText::new(app.ui.language.tr("File")).font(theme::ui_font(13.5)).color(t.accent);
     let file = ui.add(egui::Button::new(label).frame(false).min_size(vec2(46.0, 30.0)));
